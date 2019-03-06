@@ -6,7 +6,7 @@ from selenium import webdriver;
 import os;
 from selenium.webdriver.common.keys import Keys
 
-num=input("How many data file are there?\n");
+
 
 def getImageLink(tags):
     links=[];
@@ -41,13 +41,12 @@ def getDescription(tags):
                 break;
     return description;
 
-def getAllFiles():
+def getAllFiles(dir):
     files_list=[];
-    for root, dirs, files in os.walk("data"):
+    for root, dirs, files in os.walk(dir):
         for filename in files:
             files_list.append(filename)
     return files_list;
-print(getAllFiles());
 
 def findWhetherCSVContains50Data(filename):
     split_filename=filename.split('.')
@@ -57,6 +56,20 @@ def findWhetherCSVContains50Data(filename):
         return True;
     else:
         return False;
+
+def getAllDirec(dir):
+    files_list=[];
+    for root, dirs, files in os.walk(dir):
+        for filename in dirs:
+            files_list.append(filename)
+    return files_list;
+
+root_folder_name="indoor";
+root_child_name="test";
+print(getAllFiles(root_folder_name+"\\"+root_child_name+"\\"+"airport_inside"))
+
+
+
 
 
 filename=[];
