@@ -50,7 +50,7 @@ def getAllFiles(dir):
 
 def findWhetherCSVContains50Data(filename):
     split_filename=filename.split('.')
-    file=pd.read_csv("data/"+filename);
+    file=pd.read_csv(filename);
     count=len(file.Title)
     if(count>=50):
         return True;
@@ -66,15 +66,124 @@ def getAllDirec(dir):
 
 root_folder_name="indoor";
 root_child_name="test";
-print(getAllFiles(root_folder_name+"\\"+root_child_name+"\\"+"airport_inside"))
+
+data_root_dir_name='data_indoor';
+#print(getAllFiles(root_folder_name+"\\"+root_child_name+"\\"+"airport_inside"))
+
+dirs_list=getAllDirec(root_folder_name+"\\"+root_child_name);
+
+if(os.path.exists(data_root_dir_name)):
+    if(os.path.exists(data_root_dir_name+"\\"+root_child_name)):
+        for i,direc in enumerate(dirs_list):
+            if(os.path.exists(data_root_dir_name+"\\"+root_child_name+"\\"+direc)):
+                filename=getAllFiles(root_folder_name+"\\"+root_child_name+"\\"+direc)
+                for i, file in enumerate(filename):
+                    data_front=file.split('.')[0];
+                    if (findWhetherCSVContains50Data(data_root_dir_name+"\\"+root_child_name+"\\"+direc+"\\"+data_front+".csv")):
+                        pass;
+                    else:
+                        data_front=file.split('.')[0];
+                        print(data_front)
+                        encoded_url = 'https%3A%2F%2Fsolmolandra.000webhostapp.com%2F'+root_folder_name+'%2F'+root_child_name+'%2F'+direc+'%2F'+data_front+'.jpg'
+                        search_query = 'https://yandex.com/images/search?img_url=' + encoded_url + '&rpt=imagelike';
+
+                        driver = webdriver.Chrome("chromedriver.exe");
+                        driver.get(search_query);
+                        elem = driver.find_element_by_tag_name("body");
+                        no_of_pagedown = 20;
+                        while (no_of_pagedown):
+                            elem.send_keys(Keys.PAGE_DOWN)
+                            time.sleep(0.2);
+                            no_of_pagedown -= 1;
+                        page = driver.execute_script('return document.documentElement.outerHTML')
+                        driver.close()
+                        tags = []
+                        if (True):
+                            soup = BeautifulSoup(page, "html5lib");
+                            count = 0;
+                            for j in range(500):
+                                val = soup.findAll("div", {
+                                    "class": "serp-item serp-item_type_search serp-item_group_search serp-item_pos_" + str(
+                                        j) + " serp-item_scale_yes justifier__item i-bem"})
+                                if (val != []):
+                                    tags.append(val);
+                                    count += 1;
+                                    if (count >= 50):
+                                        break;
+
+                            dataframe_data = {
+                                'Title': getTitle(tags),
+                                'Description': getDescription(tags),
+                                'Link': getImageLink(tags),
+                            }
+                            df = pd.DataFrame(dataframe_data);
+                            df.to_csv(data_root_dir_name+"\\"+root_child_name+"\\"+direc+"\\"+data_front+".csv");
+                            print("Successfull");
+
+            else:
+                try:
+                    os.makedirs(data_root_dir_name + "\\" + root_child_name+"\\"+direc);
+                except FileExistsError:
+                    pass;
+
+                filename = getAllFiles(root_folder_name + "\\" + root_child_name + "\\" + direc)
+                for i, file in enumerate(filename):
+                    data_part=data_front=file.split('.');
+                    data_front=data_part[0];
+                    extension=data_part[1];
+                    print(data_front,extension);
+                    encoded_url = 'https%3A%2F%2Fsolmolandra.000webhostapp.com%2F' + root_folder_name + '%2F' + root_child_name + '%2F' + direc + '%2F' + data_front + '.'+extension;
+                    search_query = 'https://yandex.com/images/search?img_url=' + encoded_url + '&rpt=imagelike';
+
+                    driver = webdriver.Chrome("chromedriver.exe");
+                    driver.get(search_query);
+                    elem = driver.find_element_by_tag_name("body");
+                    no_of_pagedown = 20;
+                    while (no_of_pagedown):
+                        elem.send_keys(Keys.PAGE_DOWN)
+                        time.sleep(0.2);
+                        no_of_pagedown -= 1;
+                    page = driver.execute_script('return document.documentElement.outerHTML')
+                    driver.close()
+                    tags = []
+                    if (True):
+                        soup = BeautifulSoup(page, "html5lib");
+                        count = 0;
+                        for j in range(500):
+                            val = soup.findAll("div", {
+                                "class": "serp-item serp-item_type_search serp-item_group_search serp-item_pos_" + str(
+                                    j) + " serp-item_scale_yes justifier__item i-bem"})
+                            if (val != []):
+                                tags.append(val);
+                                count += 1;
+                                if (count >= 50):
+                                    break;
+
+                        dataframe_data = {
+                            'Title': getTitle(tags),
+                            'Description': getDescription(tags),
+                            'Link': getImageLink(tags),
+                        }
+                        df = pd.DataFrame(dataframe_data);
+                        df.to_csv(data_root_dir_name + "\\" + root_child_name + "\\" + direc + "\\" + data_front+".csv");
+                        print("Successfull");
+
+                #previous else content should be written
+    else:
+        try:
+            os.makedirs(data_root_dir_name+"\\"+root_child_name);
+        except FileExistsError:
+            pass;
+else:
+    try:
+        os.makedirs(data_root_dir_name);
+    except FileExistsError:
+        pass;
 
 
 
-
-
-filename=[];
-filename=getAllFiles();
-if(os.path.exists('data') and len(filename)!=0):
+"""
+if(os.path.exists('data_indoor') and len(filename)!=0):
     filename=getAllFiles();
     for i,file in enumerate(filename):
         print(i,file)
@@ -123,7 +232,7 @@ if(os.path.exists('data') and len(filename)!=0):
                 df.to_csv("data\\data" + str(i+1) + ".csv");
                 print("Successfull");
 else:
-    for i in range(int(num)):
+    for i in range(1):
         encoded_url = 'https%3A%2F%2Fsolmolandra.000webhostapp.com%2Fdata%2Fdata' + str(i + 1) + '.jpg';
         search_query = 'https://yandex.com/images/search?img_url=' + encoded_url + '&rpt=imagelike';
         driver = webdriver.Chrome("chromedriver.exe");
@@ -157,8 +266,9 @@ else:
             }
             df = pd.DataFrame(dataframe_data);
             try:
-                os.makedirs('data');
+                os.makedirs('data_indoor');
             except FileExistsError:
                 pass;
             df.to_csv("data\\data" + str(i+1) + ".csv");
-            print("Successfull");
+            """
+            #print("Successfull");
