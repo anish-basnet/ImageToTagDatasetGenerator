@@ -65,7 +65,7 @@ def getAllDirec(dir):
     return files_list;
 
 root_folder_name="indoor";
-root_child_name="test";
+root_child_name="val";
 
 data_root_dir_name='data_indoor';
 #print(getAllFiles(root_folder_name+"\\"+root_child_name+"\\"+"airport_inside"))
